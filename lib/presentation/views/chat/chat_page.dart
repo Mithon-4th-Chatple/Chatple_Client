@@ -14,6 +14,7 @@ class _ChatPageState extends State<ChatPage> {
   late final ChatViewModel viewModel;
   late final TextEditingController _textController;
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _leftSidebarScrollController = ScrollController();
 
   @override
   void initState() {
@@ -26,6 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   void dispose() {
     _textController.dispose();
     _scrollController.dispose();
+    _leftSidebarScrollController.dispose();
     super.dispose();
   }
 
@@ -127,25 +129,40 @@ class _ChatPageState extends State<ChatPage> {
           ),
           const SizedBox(height: 37),
           Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40),
-                child: Column(
-                  children: [
-                    _buildCategorySection('전공', [
-                      '가상현실콘텐츠',
-                      'UI/UX',
-                      'AR',
-                      '시각디자인',
-                    ]),
-                    const SizedBox(height: 37),
-                    _buildCategorySection('일반교과', [
-                      '과학',
-                      '진로 영어',
-                      '국어',
-                      '수학',
-                    ]),
-                  ],
+            child: Scrollbar(
+              controller: _leftSidebarScrollController,
+              thumbVisibility: true,
+              child: SingleChildScrollView(
+                controller: _leftSidebarScrollController,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                  child: Column(
+                    children: [
+                      Obx(() => _buildCategorySection(
+                            '전공',
+                            [
+                              '가상현실콘텐츠',
+                              'UI/UX',
+                              'AR',
+                              '시각디자인',
+                            ],
+                            isExpanded: viewModel.isMajorExpanded.value,
+                            onToggle: viewModel.toggleMajorSection,
+                          )),
+                      const SizedBox(height: 37),
+                      Obx(() => _buildCategorySection(
+                            '일반교과',
+                            [
+                              '과학',
+                              '진로 영어',
+                              '국어',
+                              '수학',
+                            ],
+                            isExpanded: viewModel.isGeneralExpanded.value,
+                            onToggle: viewModel.toggleGeneralSection,
+                          )),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -155,80 +172,91 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildCategorySection(String title, List<String> items) {
+  Widget _buildCategorySection(
+    String title,
+    List<String> items, {
+    required bool isExpanded,
+    required VoidCallback onToggle,
+  }) {
     final isMajor = title == '전공';
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Container(
-          padding: const EdgeInsets.all(10),
-          decoration: BoxDecoration(
-            color: const Color(0xFF31A37F),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontFamily: 'Pretendard',
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                  color: Color(0xFFFFFFFF),
-                ),
-              ),
-              const Spacer(),
-              const Icon(
-                Icons.keyboard_arrow_down,
-                color: Color(0xFFFFFFFF),
-                size: 12,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 15),
-        ...items.asMap().entries.map((entry) {
-          final index = entry.key;
-          final item = entry.value;
-          
-          return Obx(() {
-            final isSelected = isMajor 
-                ? viewModel.selectedMajorClass.value == index
-                : viewModel.selectedGeneralClass.value == index;
-            
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: GestureDetector(
-                onTap: () {
-                  if (isMajor) {
-                    viewModel.selectMajorClass(index);
-                  } else {
-                    viewModel.selectGeneralClass(index);
-                  }
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFC1E8DC) : const Color(0xFFFFFFFF),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+        GestureDetector(
+          onTap: onToggle,
+          child: Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFF31A37F),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              children: [
+                Expanded(
                   child: Text(
-                    item,
+                    title,
                     textAlign: TextAlign.center,
                     style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
-                      color: Color(0xFF575757),
+                      color: Color(0xFFFFFFFF),
                     ),
                   ),
                 ),
-              ),
-            );
-          });
-        }),
+                const SizedBox(width: 8),
+                Icon(
+                  isExpanded ? Icons.keyboard_arrow_down : Icons.keyboard_arrow_right,
+                  color: const Color(0xFFFFFFFF),
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 15),
+        if (isExpanded)
+          ...items.asMap().entries.map((entry) {
+            final index = entry.key;
+            final item = entry.value;
+            
+            return Obx(() {
+              final isSelected = isMajor 
+                  ? viewModel.selectedMajorClass.value == index
+                  : viewModel.selectedGeneralClass.value == index;
+              
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: GestureDetector(
+                  onTap: () {
+                    if (isMajor) {
+                      viewModel.selectMajorClass(index);
+                    } else {
+                      viewModel.selectGeneralClass(index);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: isSelected ? const Color(0xFFC1E8DC) : const Color(0xFFFFFFFF),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      item,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: 'Pretendard',
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        color: Color(0xFF575757),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            });
+          }),
       ],
     );
   }
@@ -272,27 +300,29 @@ class _ChatPageState extends State<ChatPage> {
           const SizedBox(height: 26),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 27),
-            child: Container(
+            child: Obx(() => Container(
+              width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 28),
               decoration: BoxDecoration(
                 color: const Color(0xFFFFFFFF),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Column(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '조예진 선생님',
-                    style: TextStyle(
+                    viewModel.currentTeacherName,
+                    style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w600,
                       fontSize: 20,
                       color: Color(0xFF575757),
                     ),
                   ),
-                  SizedBox(height: 11),
+                  const SizedBox(height: 11),
                   Text(
-                    '미림마이스터고등학교',
-                    style: TextStyle(
+                    viewModel.currentTeacherSchool,
+                    style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w500,
                       fontSize: 15,
@@ -301,7 +331,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 ],
               ),
-            ),
+            )),
           ),
           const SizedBox(height: 34),
           const Padding(
@@ -319,19 +349,26 @@ class _ChatPageState extends State<ChatPage> {
           const SizedBox(height: 12),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 27),
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  _buildScheduleItem('10/24', '4-1. 주제선정 및 리서치...', const Color(0xFFFF7878), true),
-                  _buildScheduleItem('10/24', '4-1. 주제선정 및 리서치...', const Color(0xFF55DD97), true),
-                  _buildScheduleItem('10/24', '4-1. 주제선정 및 리서치...', const Color(0xFF55DD97), false),
-                ],
-              ),
-            ),
+            child: Obx(() {
+              final items = viewModel.currentScheduleItems;
+              return Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFFFFF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    for (int i = 0; i < items.length; i++)
+                      _buildScheduleItem(
+                        items[i].date,
+                        items[i].title,
+                        Color(items[i].dotColor),
+                        i < items.length - 1,
+                      ),
+                  ],
+                ),
+              );
+            }),
           ),
           const SizedBox(height: 34),
           const Padding(
@@ -435,74 +472,58 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildAssignmentSection() {
-    return Obx(() {
-      final isExpanded = viewModel.isAssignmentExpanded.value;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          GestureDetector(
-            onTap: viewModel.toggleAssignments,
-            child: Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: const Color(0xFFFFFFFF),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Text(
-                    '과제',
-                    style: TextStyle(
+    // Always-expanded assignment list (no toggle)
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFFFFFFF),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Text(
+            '과제',
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontFamily: 'Pretendard',
+              fontWeight: FontWeight.w500,
+              fontSize: 16,
+              color: Color(0xFF575757),
+            ),
+          ),
+        ),
+        const SizedBox(height: 11),
+        ...viewModel.currentAssignments.map((title) {
+          return Obx(() {
+            final isSelected = viewModel.selectedAssignment.value == title;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 11),
+              child: GestureDetector(
+                onTap: () => viewModel.selectAssignment(title),
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFFE1F4EE) : const Color(0xFFFAFFFD),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
                       fontFamily: 'Pretendard',
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
                       color: Color(0xFF575757),
                     ),
                   ),
-                  const Spacer(),
-                  Icon(
-                    isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
-                    color: const Color(0xFF666666),
-                    size: 11,
-                  ),
-                ],
+                ),
               ),
-            ),
-          ),
-          if (isExpanded) ...[
-            const SizedBox(height: 11),
-            ...viewModel.assignments.map((title) {
-              return Obx(() {
-                final isSelected = viewModel.selectedAssignment.value == title;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 11),
-                  child: GestureDetector(
-                    onTap: () => viewModel.selectAssignment(title),
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: isSelected ? const Color(0xFFE1F4EE) : const Color(0xFFFAFFFD),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        title,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Pretendard',
-                          fontWeight: FontWeight.w500,
-                          fontSize: 16,
-                          color: Color(0xFF575757),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              });
-            }),
-          ],
-        ],
-      );
-    });
+            );
+          });
+        }),
+      ],
+    );
   }
 
   Widget _buildMainContent() {
@@ -817,6 +838,15 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                     ),
                     GestureDetector(
+                      onTap: () => viewModel.isAssignmentDetailExpanded.value = !viewModel.isAssignmentDetailExpanded.value,
+                      child: Icon(
+                        viewModel.isAssignmentDetailExpanded.value ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                        color: const Color(0xFF4A4A4A),
+                        size: 20,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GestureDetector(
                       onTap: () => viewModel.selectedAssignment.value = '',
                       child: const Icon(
                         Icons.close,
@@ -827,15 +857,15 @@ class _ChatPageState extends State<ChatPage> {
                   ],
                 ),
                 const SizedBox(height: 7),
-                const Text(
-                  '10월 24일 11:59',
-                  style: TextStyle(
+                Obx(() => Text(
+                  viewModel.currentAssignmentDueText,
+                  style: const TextStyle(
                     fontFamily: 'Pretendard',
                     fontWeight: FontWeight.w500,
                     fontSize: 16,
                     color: Color(0xFF36B58D),
                   ),
-                ),
+                )),
                 const SizedBox(height: 27),
                 Row(
                   children: [
@@ -874,6 +904,27 @@ class _ChatPageState extends State<ChatPage> {
                     ),
                   ],
                 ),
+                // 상세 내용 divider
+                const SizedBox(height: 20),
+                Container(height: 1, color: const Color(0xFFDEDEDE)),
+                const SizedBox(height: 12),
+                // 상세 내용 (토글)
+                Obx(() {
+                  if (!viewModel.isAssignmentDetailExpanded.value) return const SizedBox.shrink();
+                  final detail = viewModel.currentAssignmentDetail;
+                  if (detail.isEmpty) return const SizedBox.shrink();
+                  return Text(
+                    detail,
+                    style: const TextStyle(
+                      fontFamily: 'Pretendard',
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                      color: Color(0xFF4A4A4A),
+                      height: 1.6,
+                    ),
+                  );
+                }),
+                const SizedBox(height: 20),
                 const SizedBox(height: 40),
                 GestureDetector(
                   onTap: () {},
