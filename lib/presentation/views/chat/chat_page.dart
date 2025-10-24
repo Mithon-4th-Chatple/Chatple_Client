@@ -38,18 +38,47 @@ class _ChatPageState extends State<ChatPage> {
     
     return Scaffold(
       backgroundColor: const Color(0xFFFAFAFA),
-      body: Row(
+      body: Stack(
         children: [
-          if (showLeftSidebar) _buildLeftSidebar(),
-          Expanded(
-            child: Row(
-              children: [
-                if (showRightSidebar) _buildRightSidebar(),
-                Expanded(child: _buildMainContent()),
-                if (showAssignmentPanel) _buildFixedAssignmentPanel(),
-              ],
-            ),
+          Row(
+            children: [
+              if (showLeftSidebar) 
+                const SizedBox(width: 310),
+              Expanded(
+                child: Row(
+                  children: [
+                    if (showRightSidebar)
+                      Expanded(
+                        child: Container(
+                          margin: const EdgeInsets.all(21),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFFFFFF),
+                            border: Border.all(color: const Color(0xFFBFBFBF), width: 1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              _buildRightSidebar(),
+                              Expanded(child: _buildChatContent()),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Expanded(child: _buildMainContent()),
+                    if (showAssignmentPanel) _buildFixedAssignmentPanel(),
+                  ],
+                ),
+              ),
+            ],
           ),
+          if (showLeftSidebar)
+            Positioned(
+              left: 0,
+              top: 0,
+              bottom: 0,
+              child: _buildLeftSidebar(),
+            ),
         ],
       ),
     );
@@ -199,7 +228,7 @@ class _ChatPageState extends State<ChatPage> {
               ),
             );
           });
-        }).toList(),
+        }),
       ],
     );
   }
@@ -209,6 +238,10 @@ class _ChatPageState extends State<ChatPage> {
       width: 325,
       decoration: const BoxDecoration(
         color: Color(0xFFF5F5F5),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          bottomLeft: Radius.circular(20),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -465,7 +498,7 @@ class _ChatPageState extends State<ChatPage> {
                   ),
                 );
               });
-            }).toList(),
+            }),
           ],
         ],
       );
@@ -473,95 +506,95 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Widget _buildMainContent() {
+    return Container(
+      margin: const EdgeInsets.all(21),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFFFF),
+        border: Border.all(color: const Color(0xFFBFBFBF), width: 1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: _buildChatContent(),
+    );
+  }
+
+  Widget _buildChatContent() {
     return LayoutBuilder(
       builder: (context, constraints) {
         final horizontalPadding = constraints.maxWidth > 1200 
             ? (constraints.maxWidth * 0.15).clamp(40.0, 365.0)
             : 40.0;
         
-        return Container(
-          margin: const EdgeInsets.all(21),
-          decoration: BoxDecoration(
-            color: const Color(0xFFFFFFFF),
-            border: Border.all(color: const Color(0xFFBFBFBF), width: 1),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Column(
-            children: [
-              Expanded(
-                child: Stack(
-                  children: [
-                    Obx(() {
-                      final messages = viewModel.currentMessages;
-                      
-                      if (messages.isEmpty) {
-                        return Center(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Container(
-                                  height: 3,
-                                  constraints: BoxConstraints(
-                                    maxWidth: constraints.maxWidth * 0.8,
-                                  ),
-                                  color: const Color(0xFFD9D9D9),
-                                ),
-                                const SizedBox(height: 40),
-                                Text(
-                                  '${viewModel.currentChatRoomName} 방에 오신 걸 환영합니다!',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: constraints.maxWidth > 800 ? 36 : 24,
-                                    color: const Color(0xFF3B3B3B),
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  '2513정지영 / 2614 조세연 / 2610 유성윤 님께서 계신 방이에요',
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontFamily: 'Pretendard',
-                                    fontWeight: FontWeight.w400,
-                                    fontSize: constraints.maxWidth > 800 ? 20 : 16,
-                                    color: const Color(0xFF575757),
-                                  ),
-                                ),
-                              ],
+        return Column(
+          children: [
+            Expanded(
+              child: Obx(() {
+                final messages = viewModel.currentMessages;
+                
+                if (messages.isEmpty) {
+                  return Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            height: 3,
+                            constraints: BoxConstraints(
+                              maxWidth: constraints.maxWidth * 0.8,
+                            ),
+                            color: const Color(0xFFD9D9D9),
+                          ),
+                          const SizedBox(height: 40),
+                          Text(
+                            '${viewModel.currentChatRoomName} 방에 오신 걸 환영합니다!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w600,
+                              fontSize: constraints.maxWidth > 800 ? 36 : 24,
+                              color: const Color(0xFF3B3B3B),
                             ),
                           ),
-                        );
-                      }
-                      
-                      return ListView.builder(
-                        controller: _scrollController,
-                        reverse: true,
-                        padding: EdgeInsets.symmetric(
-                          horizontal: horizontalPadding,
-                          vertical: 36,
-                        ),
-                        itemCount: messages.length,
-                        itemBuilder: (context, index) {
-                          final reversedIndex = messages.length - 1 - index;
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 30),
-                            child: _buildChatMessage(messages[reversedIndex]),
-                          );
-                        },
-                      );
-                    }),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 30),
-                child: _buildMessageInput(),
-              ),
-            ],
-          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            '2513정지영 / 2614 조세연 / 2610 유성윤 님께서 계신 방이에요',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Pretendard',
+                              fontWeight: FontWeight.w400,
+                              fontSize: constraints.maxWidth > 800 ? 20 : 16,
+                              color: const Color(0xFF575757),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+                
+                return ListView.builder(
+                  controller: _scrollController,
+                  reverse: true,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: 36,
+                  ),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final reversedIndex = messages.length - 1 - index;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: _buildChatMessage(messages[reversedIndex]),
+                    );
+                  },
+                );
+              }),
+            ),
+            Padding(
+              padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 30),
+              child: _buildMessageInput(),
+            ),
+          ],
         );
       },
     );
