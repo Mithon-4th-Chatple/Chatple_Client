@@ -832,4 +832,219 @@ class _ChatScreenState extends State<ChatScreen> {
 			),
 		);
 	}
+
+	Widget _buildFixedAssignmentPanel(ThemeColors colors) {
+		return Container(
+			width: 466,
+			decoration: BoxDecoration(
+				color: colors.gray20,
+				borderRadius: const BorderRadius.only(
+					topRight: Radius.circular(20),
+					bottomRight: Radius.circular(20),
+				),
+			),
+			child: Column(
+				crossAxisAlignment: CrossAxisAlignment.start,
+				children: [
+					Padding(
+						padding: const EdgeInsets.fromLTRB(32, 22, 32, 0),
+						child: Row(
+							children: [
+								const Expanded(
+									child: Text(
+										'4-1. 프로젝트 아이디어 개선',
+										style: TextStyle(
+											fontFamily: 'Pretendard',
+											fontWeight: FontWeight.w500,
+											fontSize: 20,
+											color: Color(0xFF1C1C1C),
+										),
+									),
+								),
+								GestureDetector(
+									onTap: () {
+										// Close panel by deselecting assignment
+										viewModel.selectedAssignment.value = '';
+									},
+									child: const Icon(Icons.close, size: 22, color: Color(0xFF1C1C1C)),
+								),
+							],
+						),
+					),
+					const SizedBox(height: 22),
+					Padding(
+						padding: const EdgeInsets.symmetric(horizontal: 32),
+						child: Container(
+							width: double.infinity,
+							padding: const EdgeInsets.all(20),
+							decoration: BoxDecoration(
+								color: Colors.white,
+								borderRadius: BorderRadius.circular(12),
+							),
+							child: Column(
+								crossAxisAlignment: CrossAxisAlignment.start,
+								children: [
+									const Text(
+										'마감',
+										style: TextStyle(
+											fontFamily: 'Pretendard',
+											fontWeight: FontWeight.w600,
+											fontSize: 16,
+											color: Color(0xFF575757),
+										),
+									),
+									const SizedBox(height: 8),
+									const Text(
+										'2024/11/16 (토) 오후 11:59',
+										style: TextStyle(
+											fontFamily: 'Pretendard',
+											fontWeight: FontWeight.w500,
+											fontSize: 15,
+											color: Color(0xFF575757),
+										),
+									),
+									const SizedBox(height: 20),
+									const Text(
+										'활동 대상',
+										style: TextStyle(
+											fontFamily: 'Pretendard',
+											fontWeight: FontWeight.w600,
+											fontSize: 16,
+											color: Color(0xFF575757),
+										),
+									),
+									const SizedBox(height: 12),
+									Row(
+										children: [
+											Stack(
+												children: [
+													Container(
+														width: 40,
+														height: 40,
+														decoration: BoxDecoration(
+															shape: BoxShape.circle,
+															color: Colors.grey[300],
+														),
+													),
+													Positioned(
+														top: 0,
+														right: 0,
+														child: Container(
+															width: 16,
+															height: 16,
+															decoration: const BoxDecoration(
+																shape: BoxShape.circle,
+																color: Color(0xFFFFB700),
+															),
+															child: const Icon(
+																Icons.star,
+																size: 10,
+																color: Colors.white,
+															),
+														),
+													),
+												],
+											),
+											const SizedBox(width: 8),
+											Container(
+												width: 40,
+												height: 40,
+												decoration: BoxDecoration(
+													shape: BoxShape.circle,
+													color: Colors.grey[300],
+												),
+											),
+											const SizedBox(width: 8),
+											Container(
+												width: 40,
+												height: 40,
+												decoration: BoxDecoration(
+													shape: BoxShape.circle,
+													color: Colors.grey[300],
+												),
+											),
+										],
+									),
+									const SizedBox(height: 20),
+									const Text(
+										'설명',
+										style: TextStyle(
+											fontFamily: 'Pretendard',
+											fontWeight: FontWeight.w600,
+											fontSize: 16,
+											color: Color(0xFF575757),
+										),
+									),
+									const SizedBox(height: 8),
+									const Text(
+										'프로젝트의 주제를 생각하고, 아이디어를 개선할 수 있는 방법을 탐색해보는 시간을 가지려고 해요...',
+										style: TextStyle(
+											fontFamily: 'Pretendard',
+											fontWeight: FontWeight.w500,
+											fontSize: 15,
+											color: Color(0xFF575757),
+											height: 1.5,
+										),
+									),
+								],
+							),
+						),
+					),
+					const Spacer(),
+					Padding(
+						padding: const EdgeInsets.fromLTRB(32, 0, 32, 28),
+						child: Column(
+							children: [
+								SizedBox(
+									width: double.infinity,
+									height: 48,
+									child: OutlinedButton(
+										onPressed: () {},
+										style: OutlinedButton.styleFrom(
+											side: const BorderSide(color: Color(0xFF36B58D)),
+											shape: RoundedRectangleBorder(
+												borderRadius: BorderRadius.circular(8),
+											),
+										),
+										child: const Text(
+											'추가 또는 만들기',
+											style: TextStyle(
+												fontFamily: 'Pretendard',
+												fontWeight: FontWeight.w600,
+												fontSize: 16,
+												color: Color(0xFF36B58D),
+											),
+										),
+									),
+								),
+								const SizedBox(height: 12),
+								SizedBox(
+									width: double.infinity,
+									height: 48,
+									child: ElevatedButton(
+										onPressed: () {},
+										style: ElevatedButton.styleFrom(
+											backgroundColor: const Color(0xFF36B58D),
+											shape: RoundedRectangleBorder(
+												borderRadius: BorderRadius.circular(8),
+											),
+										),
+										child: const Text(
+											'완료로 표시',
+											style: TextStyle(
+												fontFamily: 'Pretendard',
+												fontWeight: FontWeight.w600,
+												fontSize: 16,
+												color: Colors.white,
+											),
+										),
+									),
+								),
+							],
+						),
+					),
+				],
+			),
+		);
+	}
 }

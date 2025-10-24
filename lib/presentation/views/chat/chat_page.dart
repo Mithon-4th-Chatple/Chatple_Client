@@ -733,39 +733,6 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  Widget _buildScrollIndicators() {
-    return Row(
-      children: [
-        Container(
-          width: 28,
-          height: 28,
-          decoration: const BoxDecoration(
-            color: Color(0xFFD9D9D9),
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 6),
-        Container(
-          width: 27,
-          height: 28,
-          decoration: const BoxDecoration(
-            color: Color(0xFFD9D9D9),
-            shape: BoxShape.circle,
-          ),
-        ),
-        const SizedBox(width: 6),
-        Container(
-          width: 28,
-          height: 28,
-          decoration: const BoxDecoration(
-            color: Color(0xFFD9D9D9),
-            shape: BoxShape.circle,
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildFixedAssignmentPanel() {
     return Container(
       width: 466,
